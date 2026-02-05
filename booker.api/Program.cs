@@ -2,12 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using booker.api.Data;
 using Microsoft.AspNetCore.Identity;
 using booker.api.Models;
+using booker.api.DIExtension;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
@@ -31,6 +33,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -51,6 +55,8 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -1,5 +1,6 @@
 ﻿using booker.api.Data;
 using booker.api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,6 +9,7 @@ namespace booker.api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ProductController : ControllerBase
 {
     private readonly BookerDbContext _context;
@@ -20,22 +22,38 @@ public class ProductController : ControllerBase
     }
 
     // GET: api/Product
-    [HttpGet("GetProducts")]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
-        List<Product>? products = _memoryCache.Get<List<Product>>("products_cache");
 
-        if (products == null)
+        var response = new ApiResponse();
+        try
         {
-            products = await _context.Products.ToListAsync();
+            List<Product>? products = _memoryCache.Get<List<Product>>("products_cache");
 
-            MemoryCacheEntryOptions options = new()
+            if (products == null)
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            _memoryCache.Set("products_cache", products, options);
+                products = await _context.Products.ToListAsync();
+
+                MemoryCacheEntryOptions options = new()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                };
+                _memoryCache.Set("products_cache", products, options);
+            }
+            response.Result = products;
+            response.IsSuccess = true;
+            response.StatusCode = System.Net.HttpStatusCode.OK;
+            return Ok(response);
         }
-        return products;
+        catch (Exception ex)
+        {
+            response.IsSuccess = false;
+            response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+            response.ErrorMessages = new List<string> { ex.Message };
+            return StatusCode((int)response.StatusCode, response);
+        }
+        
     }
 
     // GET: api/Product/5
