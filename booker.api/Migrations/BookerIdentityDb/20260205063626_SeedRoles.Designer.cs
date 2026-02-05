@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using booker.api.Data;
 
@@ -11,9 +12,11 @@ using booker.api.Data;
 namespace booker.api.Migrations.BookerIdentityDb
 {
     [DbContext(typeof(BookerIdentityDbContext))]
-    partial class BookerIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260205063626_SeedRoles")]
+    partial class SeedRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

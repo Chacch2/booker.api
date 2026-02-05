@@ -3,6 +3,8 @@ using booker.api.Data;
 using Microsoft.AspNetCore.Identity;
 using booker.api.Models;
 using booker.api.DIExtension;
+using booker.api.Services.Interface;
+using booker.api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,20 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+}).AddRoles<IdentityRole>()
+  .AddEntityFrameworkStores<BookerIdentityDbContext>()
+  .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 var app = builder.Build();
 
