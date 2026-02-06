@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
 using booker.api.Data;
-using Microsoft.AspNetCore.Identity;
-using booker.api.Models;
 using booker.api.DIExtension;
-using booker.api.Services.Interface;
+using booker.api.Models;
 using booker.api.Services;
+using booker.api.Services.Interface;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<BookerDbContext>(options =>
@@ -57,13 +58,12 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booker API V1");
-        c.RoutePrefix = string.Empty;
-    });
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
+
+app.MapGet("/", () => "Hello world!");
+
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
